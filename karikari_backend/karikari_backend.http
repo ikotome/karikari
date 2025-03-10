@@ -1,0 +1,6 @@
+@karikari_backend_HostAddress = http://localhost:5183
+
+GET {{karikari_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,63 @@
+volumes:
+  myapp-db-data:
+    driver: local
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+      args:
+        - PROJECT_NAME=karikari_backend
+    ports:
+      - "8080:8080"
+    networks:
+      - myapp-network
+  db:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    environment:
+      SA_PASSWORD: "jMJWpbHG75Gw"
+      ACCEPT_EULA: "Y"
+      MSSQL_AGENT_ENABLED: "true"
+      DB_NAME: "karikari_backend"
+    ports:
+      - "1444:1444"
+    volumes:
+      - ./data:/var/opt/mssql/data
+      - ./backup:/backup
+    networks:
+      - myapp-network
+  migrate:
+    build:
+      context: .
+      dockerfile: ./docker/migrate/Dockerfile
+      args:
+        - PROJECT_NAME=karikari_backend
+    depends_on:
+      - db
+    profiles:
+      - tools
+    networks:
+      - myapp-network
+  sdk:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    working_dir: /src
+    volumes:
+      - .:/src
+    profiles:
+      - tools
+  tunnel:
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
+    profiles:
+      - public
+    networks:
+      - myapp-network
+
+networks:
+  myapp-network: {}
