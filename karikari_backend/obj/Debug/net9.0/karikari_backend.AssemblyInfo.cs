@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("karikari_backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab30f5fb27278242c6c170394ee4044ccc179ad7")]
 [assembly: System.Reflection.AssemblyProductAttribute("karikari_backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("karikari_backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
