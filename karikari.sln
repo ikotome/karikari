@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "karikari_backend", "karikari_backend\karikari_backend.csproj", "{C8C79CB1-216B-3EBA-F975-B2F7AAA760F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shogendar.Karikari.Backend", "Shogendar.Karikari.Backend\Shogendar.Karikari.Backend.csproj", "{C8C79CB1-216B-3EBA-F975-B2F7AAA760F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

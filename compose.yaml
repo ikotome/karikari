@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./docker/app/Dockerfile
       args:
-        - PROJECT_NAME=karikari_backend
+        - PROJECT_NAME=Shogendar.Karikari.Backend
     ports:
       - "8080:8080"
     networks:
@@ -18,7 +18,7 @@ services:
       SA_PASSWORD: "jMJWpbHG75Gw"
       ACCEPT_EULA: "Y"
       MSSQL_AGENT_ENABLED: "true"
-      DB_NAME: "karikari_backend"
+      DB_NAME: "Shogendar.Karikari.Backend"
     ports:
       - "1444:1444"
     volumes:
@@ -31,7 +31,7 @@ services:
       context: .
       dockerfile: ./docker/migrate/Dockerfile
       args:
-        - PROJECT_NAME=karikari_backend
+        - PROJECT_NAME=Shogendar.Karikari.Backend
     depends_on:
       - db
     profiles:
