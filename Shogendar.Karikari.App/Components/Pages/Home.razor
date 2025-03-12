@@ -21,8 +21,8 @@ else
     {
         await User.Instance.Login();
     }
-    public async void OnLogoutClicked()
+    public async Task OnLogoutClicked()
     {
-        User.Instance.Logout();
+        await User.Instance.Logout();
     }
 }
