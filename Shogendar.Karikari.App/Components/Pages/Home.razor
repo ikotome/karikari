@@ -3,17 +3,19 @@
 <h1>Kari Kari!</h1>
 
 みんなで仲良くカリカリしよう!
+うごくようになったよ!
 
 @if (!User.Instance.LoggedIn())
 {
-    <p>ログインしてください</p>
-    <button class="btn btn-primary" @onclick="OnLoginClicked">Googleでログイン</button>
+                                    <p>ログインしてください</p>
+                                    <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
 }
 else
 {
-    <p>あなたはログインしています</p>
-    <button class="btn btn-primary" @onclick="OnLogoutClicked">ログアウト</button>
+                                    <p>あなたはログインしています</p>
+                                    <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
 }
+
 
 
 @code {
