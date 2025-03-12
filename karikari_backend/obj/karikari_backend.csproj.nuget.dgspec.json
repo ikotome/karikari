@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/kotomi/my_program/karikari/karikari_backend/karikari_backend.csproj": {}
+    "/Users/taiseiue/tmp/karikari/karikari_backend/karikari_backend.csproj": {}
   },
   "projects": {
-    "/Users/kotomi/my_program/karikari/karikari_backend/karikari_backend.csproj": {
+    "/Users/taiseiue/tmp/karikari/karikari_backend/karikari_backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/kotomi/my_program/karikari/karikari_backend/karikari_backend.csproj",
+        "projectUniqueName": "/Users/taiseiue/tmp/karikari/karikari_backend/karikari_backend.csproj",
         "projectName": "karikari_backend",
-        "projectPath": "/Users/kotomi/my_program/karikari/karikari_backend/karikari_backend.csproj",
-        "packagesPath": "/Users/kotomi/.nuget/packages/",
-        "outputPath": "/Users/kotomi/my_program/karikari/karikari_backend/obj/",
+        "projectPath": "/Users/taiseiue/tmp/karikari/karikari_backend/karikari_backend.csproj",
+        "packagesPath": "/Users/taiseiue/.nuget/packages/",
+        "outputPath": "/Users/taiseiue/tmp/karikari/karikari_backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/kotomi/.nuget/NuGet/NuGet.Config"
+          "/Users/taiseiue/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"

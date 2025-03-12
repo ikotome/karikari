@@ -85,17 +85,21 @@ namespace karikari_backend.Migrations
                     b.Property<int?>("EventId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Payer")
+                    b.Property<int>("PayerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Repayer")
+                    b.Property<int>("RepayerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Loan");
+                    b.HasIndex("PayerId");
+
+                    b.HasIndex("RepayerId");
+
+                    b.ToTable("Loans");
                 });
 
             modelBuilder.Entity("karikari_backend.Models.User", b =>
@@ -128,6 +132,22 @@ namespace karikari_backend.Migrations
                     b.HasOne("karikari_backend.Models.Event", null)
                         .WithMany("Loans")
                         .HasForeignKey("EventId");
+
+                    b.HasOne("karikari_backend.Models.User", "Payer")
+                        .WithMany()
+                        .HasForeignKey("PayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("karikari_backend.Models.User", "Repayer")
+                        .WithMany()
+                        .HasForeignKey("RepayerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Payer");
+
+                    b.Navigation("Repayer");
                 });
 
             modelBuilder.Entity("karikari_backend.Models.Event", b =>
