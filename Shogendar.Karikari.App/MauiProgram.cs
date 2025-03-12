@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Radzen;
 
 namespace Shogendar.Karikari.App;
 
@@ -14,6 +15,7 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
+		builder.Services.AddRadzenComponents();
 		builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG

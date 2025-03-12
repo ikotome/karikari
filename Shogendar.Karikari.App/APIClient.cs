@@ -30,7 +30,7 @@ class APIClient(string baseUrl, string token, string secret)
     /// <param name="method">リクエストメソッド</param>
     /// <param name="requestEndPoint">リクエスト先のエンドポイント</param>
     /// <returns>作成したHttpリクエスト</returns>
-    private HttpRequestMessage CreateRequest(HttpMethod method, string requestEndPoint)
+    private HttpRequestMessage CreateRequest(HttpMethod method, string requestEndPoint, Dictionary<string, string> queryParameters = null)
     {
         string nonce = Guid.NewGuid().ToString();
         long t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -38,7 +38,7 @@ class APIClient(string baseUrl, string token, string secret)
         string stringToSign = $"{m_token}{t}{nonce}";
         string sign = ComputeHmacSha256(m_secret, stringToSign);
 
-        HttpRequestMessage request = new HttpRequestMessage(method, $"{this.m_baseUrl}/{requestEndPoint}");
+        HttpRequestMessage request = new HttpRequestMessage(method, $"{this.m_baseUrl}/{requestEndPoint}?{new FormUrlEncodedContent(queryParameters).ReadAsStringAsync().Result}");
 
         request.Headers.Add("Authorization", m_token);
         request.Headers.Add("charset", "utf8");
@@ -59,6 +59,30 @@ class APIClient(string baseUrl, string token, string secret)
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
         byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
         return Convert.ToBase64String(hashBytes);
+    }
+    /// <summary>
+    /// 現在のユーザーがもつ債務を取得します
+    /// </summary>
+    /// <returns></returns>
+    public async Task<List<Loan>> GetLoans()
+    {
+        HttpRequestMessage request = CreateRequest(HttpMethod.Get, "loans");
+        HttpResponseMessage response = await httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<User>>(responseBody);
+    }
+    /// <summary>
+    /// 現在のユーザーがもつ債権を取得します
+    /// </summary>
+    /// <returns></returns>
+    public async Task<List<Loan>> GetReceivables()
+    {
+        HttpRequestMessage request = CreateRequest(HttpMethod.Get, "receivables");
+        HttpResponseMessage response = await httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<User>>(responseBody);
     }
 
 }
