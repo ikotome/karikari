@@ -1,0 +1,28 @@
+﻿@page "/"
+
+<h1>Kari Kari!</h1>
+
+みんなで仲良くカリカリしよう!
+
+@if (!User.Instance.LoggedIn())
+{
+    <p>ログインしてください</p>
+    <button class="btn btn-primary" @onclick="OnLoginClicked">Googleでログイン</button>
+}
+else
+{
+    <p>あなたはログインしています</p>
+    <button class="btn btn-primary" @onclick="OnLogoutClicked">ログアウト</button>
+}
+
+
+@code {
+    public async Task OnLoginClicked()
+    {
+        await User.Instance.Login();
+    }
+    public async Task OnLogoutClicked()
+    {
+        await Task.Run(() => User.Instance.Logout());
+    }
+}
