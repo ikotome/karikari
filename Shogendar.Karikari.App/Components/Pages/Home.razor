@@ -1,5 +1,28 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<h1>Kari Kari!</h1>
 
-Welcome to your new app.
+みんなで仲良くカリカリしよう!
+
+@if (!User.Instance.LoggedIn())
+{
+    <p>ログインしてください</p>
+    <button class="btn btn-primary" @onclick="OnLoginClicked">Googleでログイン</button>
+}
+else
+{
+    <p>あなたはログインしています</p>
+    <button class="btn btn-primary" @onclick="OnLogoutClicked">ログアウト</button>
+}
+
+
+@code {
+    public async Task OnLoginClicked()
+    {
+        await User.Instance.Login();
+    }
+    public async void OnLogoutClicked()
+    {
+        User.Instance.Logout();
+    }
+}
