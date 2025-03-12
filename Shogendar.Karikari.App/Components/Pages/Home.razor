@@ -23,6 +23,6 @@ else
     }
     public async Task OnLogoutClicked()
     {
-        await User.Instance.Logout();
+        await Task.Run(() => User.Instance.Logout());
     }
 }

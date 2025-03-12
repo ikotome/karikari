@@ -5,32 +5,25 @@ using System.Text.Json;
 
 namespace Shogendar.Karikari.App;
 
-class APIClient
+/// <summary>
+/// Karikari バックエンドを叩くクライアント
+/// </summary>
+/// <param name="baseUrl">Karikari バックエンドのベースURL</param>
+/// <param name="token">リクエストをするユーザーのトークン</param>
+/// <param name="secret">リクエストをするユーザーのシークレット</param>
+class APIClient(string baseUrl, string token, string secret)
 {
     /// <summary>
     /// Karikari バックエンドのベースURL
     /// </summary>
-    private readonly string m_baseUrl;
+    private readonly string m_baseUrl = baseUrl;
     /// <summary>
     /// 通信に使用するHttpClient
     /// </summary>
-    private readonly HttpClient httpClient;
-    private readonly string m_token;
-    private readonly string m_secret;
+    private static readonly HttpClient httpClient = new();
+    private readonly string m_token = token;
+    private readonly string m_secret = secret;
 
-    /// <summary>
-    /// Karikari バックエンドを叩くクライアントを生成します
-    /// </summary>
-    /// <param name="baseUrl">Karikari バックエンドのベースURL</param>
-    /// <param name="token">リクエストをするユーザーのトークン</param>
-    /// <param name="secret">リクエストをするユーザーのシークレット</param>
-    public APIClient(string baseUrl, string token, string secret)
-    {
-        this.m_baseUrl = baseUrl;
-        this.httpClient = new HttpClient();
-        this.m_token = token;
-        this.m_secret = secret;
-    }
     /// <summary>
     /// HMAC-SHA256で署名されたHttpリクエストを作成します
     /// </summary>
@@ -63,11 +56,9 @@ class APIClient
     /// <returns>ハッシュ化されたメッセージをBase64エンコードした文字列</returns>
     private string ComputeHmacSha256(string secret, string message)
     {
-        using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret)))
-        {
-            byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
-            return Convert.ToBase64String(hashBytes);
-        }
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
+        return Convert.ToBase64String(hashBytes);
     }
 
 }
