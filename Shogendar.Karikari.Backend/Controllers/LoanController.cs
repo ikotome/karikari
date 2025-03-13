@@ -9,12 +9,14 @@ namespace Shogendar.Karikari.Backend.Controllers
     public class LoanController : ControllerBase
     {
         [HttpGet]
-        public IActionResult Loans(int uid){
+        public IActionResult ShowLoans(int uid){
             Db db = new();
             var query = from loan in db.Loans
                         where loan.PayerId == uid
                         select loan;
             return Ok(query.ToList());
         }
+
+
     }
 }

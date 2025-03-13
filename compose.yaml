@@ -20,7 +20,7 @@ services:
       MSSQL_AGENT_ENABLED: "true"
       DB_NAME: "Shogendar.Karikari.Backend"
     ports:
-      - "1444:1444"
+      - "1433:1433"
     volumes:
       - ./data:/var/opt/mssql/data
       - ./backup:/backup
