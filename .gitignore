@@ -486,3 +486,7 @@ $RECYCLE.BIN/
 
 /backup
 /data
+
+# AppSettings
+appsettings.json
+appsettings.Development.json
