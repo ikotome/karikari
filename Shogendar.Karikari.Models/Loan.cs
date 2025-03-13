@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Shogendar.Karikari.Backend.Models
+namespace Shogendar.Karikari.Models
 {
     public class Loan
     {
