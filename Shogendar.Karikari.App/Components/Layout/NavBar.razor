@@ -1,0 +1,118 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div class="nav-container @(_isMobileView ? "mobile-view" : "desktop-view")">
+    <RadzenLayout style="width: 100%;">
+        <RadzenHeader>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                <RadzenLabel Text="Header" />
+            </RadzenStack>
+        </RadzenHeader>
+        @if (_isMobileView)
+        {
+                            <RadzenBody>
+                                <div class="content-with-bottom-nav">
+                                    @ChildContent
+                                </div>
+                            </RadzenBody>
+                            <RadzenFooter>
+                                <RadzenCard class="bottom-nav">
+                                    @foreach (var item in NavigationItems)
+                                    {
+                                                    <div class="bottom-nav-item @(IsActive(item) ? "active" : "")" @onclick="() => NavigateTo(item.Path)">
+                                                        <RadzenIcon Icon="@item.Icon" />
+                                                        <div class="item-text">@item.Text</div>
+                                                    </div>
+                                    }
+                                </RadzenCard>
+                            </RadzenFooter>
+        }
+        else
+        {
+                    <RadzenSidebar @bind-Expanded="@_sidebarExpanded">
+                        <RadzenSidebarToggle />
+                        <RadzenPanelMenu>
+                            @foreach (var item in NavigationItems)
+                            {
+                                        <RadzenPanelMenuItem Text="@item.Text" Icon="@item.Icon" Path="@item.Path" Click="() => NavigateTo(item.Path)"/>
+                            }
+                        </RadzenPanelMenu>
+                    </RadzenSidebar>
+                    <RadzenBody>
+                        <div class="rz-p-4">
+                            @ChildContent
+                        </div>
+                    </RadzenBody>
+        }
+    </RadzenLayout>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public List<NavItem> NavigationItems { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<string> OnNavigate { get; set; }
+
+    [Parameter]
+    public string CurrentPath { get; set; } = "";
+
+    private bool _isMobileView;
+    private bool _sidebarExpanded = true;
+    private DotNetObjectReference<NavBar> _objRef;
+    private IJSObjectReference _module;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _objRef = DotNetObjectReference.Create(this);
+        _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/app.js");
+        
+        await CheckWindowSize();
+        await _module.InvokeVoidAsync("addResizeListener", _objRef);
+    }
+
+    private async Task CheckWindowSize()
+    {
+        var width = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+        _isMobileView = width < 768; // モバイルビューのブレークポイント
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task OnBrowserResize()
+    {
+        await CheckWindowSize();
+    }
+
+    private bool IsActive(NavItem item)
+    {
+        return CurrentPath.Equals(item.Path, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task NavigateTo(string path)
+    {
+        await OnNavigate.InvokeAsync(path);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            await _module.InvokeVoidAsync("removeResizeListener", _objRef);
+            await _module.DisposeAsync();
+        }
+
+        _objRef?.Dispose();
+    }
+
+    public class NavItem
+    {
+        public string Text { get; set; }
+        public string Icon { get; set; }
+        public string Path { get; set; }
+    }
+}

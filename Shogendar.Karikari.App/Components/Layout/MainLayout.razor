@@ -1,23 +1,59 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager NavigationManager
 
 <HeadContent>
     <RadzenTheme Theme="material" />
 </HeadContent>
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <NavBar NavigationItems="@navigationItems" CurrentPath="@currentPath" OnNavigate="HandleNavigation">
+        <main>
+            <div class="content">
+                @Body
+            </div>
+        </main>
+    </NavBar>
 </div>
+
 <RadzenComponents />
 
+@code {
+    private List<NavBar.NavItem> navigationItems = new List<NavBar.NavItem>
+{
+new NavBar.NavItem { Text = "ホーム", Icon = "home", Path = "/" },
+new NavBar.NavItem { Text = "カウンター", Icon = "add_circle", Path = "/counter" },
+new NavBar.NavItem { Text = "天気", Icon = "cloud_download", Path = "/weather" },
+new NavBar.NavItem { Text = "設定", Icon = "settings", Path = "/settings" }
+};
+
+    private string currentPath;
+
+    protected override void OnInitialized()
+    {
+        // 現在のパスを取得
+        currentPath = new Uri(NavigationManager.Uri).PathAndQuery;
+
+        // ナビゲーション変更のイベント購読
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        // URLが変更された時に現在のパスを更新
+        currentPath = new Uri(e.Location).PathAndQuery;
+        StateHasChanged();
+    }
+
+    private void HandleNavigation(string path)
+    {
+        // ナビゲーション実行
+        NavigationManager.NavigateTo(path);
+    }
+
+    public void Dispose()
+    {
+        // コンポーネント破棄時にイベント購読を解除
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}
