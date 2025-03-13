@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Shogendar.Karikari.Models;
 
 namespace Shogendar.Karikari.Backend;
 
 public class Db : DbContext
 {
-    public DbSet<Models.User> Users { get; set; }
-    public DbSet<Models.Event> Events { get; set; }
-    public DbSet<Models.Group> Groups { get; set; }
-    // Loansが見えていませんが、おそらくこのように定義されていると思います
-    public DbSet<Models.Loan> Loans { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<Loan> Loans { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

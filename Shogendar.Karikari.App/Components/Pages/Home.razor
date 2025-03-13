@@ -5,15 +5,15 @@
 みんなで仲良くカリカリしよう!
 うごくようになったよ!
 
-@if (!User.Instance.LoggedIn())
+@if (!LocalUser.Instance.LoggedIn())
 {
-                                    <p>ログインしてください</p>
-                                    <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
+    <p>ログインしてください</p>
+    <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
 }
 else
 {
-                                    <p>あなたはログインしています</p>
-                                    <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
+    <p>あなたはログインしています</p>
+    <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
 }
 
 
@@ -21,10 +21,10 @@ else
 @code {
     public async Task OnLoginClicked()
     {
-        await User.Instance.Login();
+        await LocalUser.Instance.Login();
     }
     public async Task OnLogoutClicked()
     {
-        await Task.Run(() => User.Instance.Logout());
+        await Task.Run(() => LocalUser.Instance.Logout());
     }
 }

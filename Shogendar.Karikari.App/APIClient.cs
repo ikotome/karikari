@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Shogendar.Karikari.Models;
 
 namespace Shogendar.Karikari.App;
 
@@ -70,7 +71,7 @@ class APIClient(string baseUrl, string token, string secret)
         HttpResponseMessage response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         string responseBody = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<List<User>>(responseBody);
+        return JsonSerializer.Deserialize<List<Loan>>(responseBody);
     }
     /// <summary>
     /// 現在のユーザーがもつ債権を取得します
@@ -82,7 +83,7 @@ class APIClient(string baseUrl, string token, string secret)
         HttpResponseMessage response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         string responseBody = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<List<User>>(responseBody);
+        return JsonSerializer.Deserialize<List<Loan>>(responseBody);
     }
 
 }
