@@ -7,14 +7,16 @@
 
 @if (!LocalUser.Instance.LoggedIn())
 {
-    <p>ログインしてください</p>
-    <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
+            <p>ログインしてください</p>
+            <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
 }
 else
 {
-    <p>あなたはログインしています</p>
-    <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
+            <p>あなたはログインしています</p>
+            <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
 }
+
+<FlottingButton />
 
 @code {
     public async Task OnLoginClicked()
