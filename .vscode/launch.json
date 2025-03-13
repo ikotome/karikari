@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "C#: Baclend Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/Shogendar.Karikari.Backend/Shogendar.Karikari.Backend.csproj"
+        },
+        {
             "name": ".NET MAUI",
             "type": "maui",
             "request": "launch",

@@ -2,9 +2,12 @@ ARG PROJECT_NAME=MyApp
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /source
 ARG PROJECT_NAME
+ARG PROJECT_LIB_NAME
+COPY ${PROJECT_LIB_NAME}/${PROJECT_LIB_NAME}.csproj ./${PROJECT_LIB_NAME}/
 COPY ${PROJECT_NAME}/${PROJECT_NAME}.csproj ./${PROJECT_NAME}/
 RUN dotnet restore ${PROJECT_NAME}
 
+COPY ./${PROJECT_LIB_NAME}/. ./${PROJECT_LIB_NAME}/
 COPY ./${PROJECT_NAME}/. ./${PROJECT_NAME}/
 WORKDIR /source/${PROJECT_NAME}
 RUN dotnet publish ${PROJECT_NAME}.csproj -c Release -o /app --use-current-runtime true
