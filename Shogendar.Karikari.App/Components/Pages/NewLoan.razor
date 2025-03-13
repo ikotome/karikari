@@ -1,16 +1,15 @@
 @page "/newloan"
 
-<h1>貸し/借り</h1>
+<div class="rz-p-12 rz-text-align-center">
+    <RadzenNumeric TValue="double" Format="#.0000" @bind-Value=@value
+        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" />
+    <RadzenNumeric TValue="double" Format="c" @bind-Value=@value
+        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" />
+    <RadzenNumeric TValue="double" Format="### m2" @bind-Value=@value
+        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" />
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+</div>
 
 @code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
+    double value = 0.0;
 }

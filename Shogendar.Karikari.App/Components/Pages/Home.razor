@@ -1,4 +1,9 @@
-﻿@page "/"
+﻿@using Microsoft.JSInterop
+@using System.Text.Json
+
+@inject DialogService DialogService
+@inject IJSRuntime JSRuntime
+@page "/"
 
 <h1>Kari Kari!</h1>
 
@@ -7,17 +12,15 @@
 
 @if (!LocalUser.Instance.LoggedIn())
 {
-            <p>ログインしてください</p>
-            <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
+    <p>ログインしてください</p>
+    <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
 }
 else
 {
-            <p>あなたはログインしています</p>
-            <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
+    <p>あなたはログインしています</p>
+    <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
 }
-
-<FlottingButton />
-
+<FloatingButton Click="OnFloatingButtonClicked" />
 @code {
     public async Task OnLoginClicked()
     {
@@ -26,5 +29,15 @@ else
     public async Task OnLogoutClicked()
     {
         await Task.Run(() => LocalUser.Instance.Logout());
+    }
+    private async void OnFloatingButtonClicked()
+    {
+        await DialogService.OpenAsync<NewLoan>($"貸し借り",
+        new Dictionary<string, object>() { },
+        new DialogOptions()
+        {
+            Width = "75%",
+            Height = "75%"
+        });
     }
 }

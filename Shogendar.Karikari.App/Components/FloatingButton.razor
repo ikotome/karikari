@@ -1,0 +1,16 @@
+<RadzenButton Icon="@Icon" Click=@OnClick ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"
+    Style="position:fixed; bottom:7%; right:6%; zIndex:5000;" class="rz-border-radius-10 rz-shadow-10" />
+
+@code
+{
+    [Parameter]
+    public string Icon { get; set; } = "add";
+
+    [Parameter]
+    public EventCallback Click { get; set; }
+
+    private async Task OnClick()
+    {
+        await Click.InvokeAsync();
+    }
+}
