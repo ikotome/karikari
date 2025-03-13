@@ -5,17 +5,17 @@ using System.Text.Json;
 
 namespace Shogendar.Karikari.App;
 
-class User
+class LocalUser
 {
-    public static User Instance
+    public static LocalUser Instance
     {
         get
         {
-            m_instance ??= new User();
+            m_instance ??= new LocalUser();
             return m_instance;
         }
     }
-    private static User m_instance;
+    private static LocalUser m_instance;
     private string? m_token;
     public string? Token
     {
