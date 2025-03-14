@@ -15,12 +15,11 @@ namespace Shogendar.Karikari.Backend.Controllers
         public IActionResult ShowLoans(int uid){
             Db db = new();
             var query = from loan in db.Loans
-                        where loan.PayerId == uid
-                        orderby loan.PayDate descending
+                        where loan.Id == uid
                         select loan;
             if(!query.Any())
                 return NotFound();
-            return Ok(query.ToList());
+            return Ok(query.FirstOrDefault());
         }
 
         [HttpPut]
