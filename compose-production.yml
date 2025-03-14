@@ -1,0 +1,30 @@
+volumes:
+  myapp-db-data:
+    driver: local
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+      args:
+        - PROJECT_NAME=Shogendar.Karikari.Backend
+        - PROJECT_LIB_NAME=Shogendar.Karikari.Models
+    ports:
+      - "8480:8080"
+    networks:
+      - myapp-network
+  db:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    environment:
+      SA_PASSWORD: "jMJWpbHG75Gw"
+      ACCEPT_EULA: "Y"
+      MSSQL_AGENT_ENABLED: "true"
+      DB_NAME: "Shogendar.Karikari.Backend"
+    volumes:
+      - ./data:/var/opt/mssql/data
+      - ./backup:/backup
+    networks:
+      - myapp-network
+
+networks:
+  myapp-network: {}
