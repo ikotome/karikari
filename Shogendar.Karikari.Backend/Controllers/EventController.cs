@@ -48,9 +48,12 @@ namespace Shogendar.Karikari.Backend.Controllers
         [HttpDelete]
         public IActionResult DeleteEvent(int id){
             Db db = new();
+            
             var query = from Event in db.Events
                         where Event.Id == id
                         select Event;
+            if(!query.Any())
+                return NotFound();
             Models.Event result = query.FirstOrDefault();
             db.Events.Remove(result);
             db.SaveChanges();
