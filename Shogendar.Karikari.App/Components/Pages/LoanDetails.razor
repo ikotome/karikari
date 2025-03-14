@@ -1,10 +1,15 @@
 @page "/loanDetails/{LoanId:int}"
 @using Shogendar.Karikari.Models
+@using System.Globalization
 
-<h1>貸し借り詳細</h1>
 <ItemContainer Item=@Loan>
-    <p>名前: @Loan.Amount</p>
-    <p>貸し借りID: @LoanId</p>
+    <WalletCard Amount=@(Loan.Amount) Title="@($"{Loan.Repayer.Name}が、{Loan.Payer.Name}に返すお金")" />
+</ItemContainer>
+<hr />
+
+<ItemContainer Item=@Loan>
+    <h1>@Loan.Title</h1>
+    <p>@Loan.Description</p>
 </ItemContainer>
 
 @code {
