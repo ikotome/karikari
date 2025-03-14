@@ -1,0 +1,20 @@
+@page "/loanDetails/{LoanId:int}"
+@using Shogendar.Karikari.Models
+
+<h1>貸し借り詳細</h1>
+<ItemContainer Item=@Loan>
+    <p>名前: @Loan.Amount</p>
+    <p>貸し借りID: @LoanId</p>
+</ItemContainer>
+
+@code {
+    [Parameter]
+    public int LoanId { get; set; }
+    public Loan Loan { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loan = await APIClient.Instance.GetLoan(LoanId, LocalUser.Instance.User);
+    }
+
+}

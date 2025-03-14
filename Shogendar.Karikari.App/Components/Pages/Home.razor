@@ -1,22 +1,42 @@
-﻿@page "/"
+﻿@using Microsoft.JSInterop
+@using System.Text.Json
+@using Shogendar.Karikari.Models
 
-<h1>Kari Kari!</h1>
+@inject DialogService DialogService
+@inject IJSRuntime JSRuntime
+@page "/"
 
-みんなで仲良くカリカリしよう!
-うごくようになったよ!
+<ItemContainer Item=@TotalAmount>
+    <WalletCard Amount=@TotalAmount />
+</ItemContainer>
+<hr />
+<ItemContainer Item=@Loans>
+    <RadzenTable GridLines="DataGridGridLines.Vertical" AllowAlternatingRows="false">
+        <RadzenTableHeader>
+            <RadzenTableHeaderRow>
+                <RadzenTableHeaderCell>名前</RadzenTableHeaderCell>
+                <RadzenTableHeaderCell>金額</RadzenTableHeaderCell>
+            </RadzenTableHeaderRow>
+        </RadzenTableHeader>
+        <RadzenTableBody>
+            @foreach (var loan in Loans)
+            {
+                                                <RadzenTableRow>
+                                                    <RadzenTableCell>@loan.Payer.Name</RadzenTableCell>
+                                                    <RadzenTableCell>@loan.Amount</RadzenTableCell>
+                                                    <RadzenTableCell>
+                                                        <RadzenLink Text="詳しく" Variant="Variant.Outlined"  Style="ButtonStyle.Info" Path=@($"loanDetails/{loan.Id}") />
+                                                    </RadzenTableCell>
+                                                </RadzenTableRow>
+            }
+        </RadzenTableBody>
+    </RadzenTable>
+</ItemContainer>
 
-@if (!LocalUser.Instance.LoggedIn())
-{
-    <p>ログインしてください</p>
-    <RadzenButton Click=@OnLoginClicked Text="Googleでログイン" ButtonStyle="ButtonStyle.Primary" />
-}
-else
-{
-    <p>あなたはログインしています</p>
-    <RadzenButton Click="@OnLogoutClicked" Text="ログアウト"></RadzenButton>
-}
-
+<FloatingButton Click="OnFloatingButtonClicked" />
 @code {
+    public IEnumerable<Loan> Loans { get; set; }
+    public decimal? TotalAmount { get; set; }
     public async Task OnLoginClicked()
     {
         await LocalUser.Instance.Login();
@@ -24,5 +44,20 @@ else
     public async Task OnLogoutClicked()
     {
         await Task.Run(() => LocalUser.Instance.Logout());
+    }
+    private async void OnFloatingButtonClicked()
+    {
+        await DialogService.OpenAsync<NewLoan>($"貸し借り",
+        new Dictionary<string, object>() { },
+        new DialogOptions()
+        {
+            Width = "10%",
+            Height = "10%"
+        });
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User);
+        TotalAmount = Loans.Sum(l => l.Amount);
     }
 }

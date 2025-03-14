@@ -1,5 +1,6 @@
 using System.Net;
 using System.Security.Cryptography;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Shogendar.Karikari.Models;
@@ -14,6 +15,7 @@ namespace Shogendar.Karikari.App;
 /// <param name="secret">リクエストをするユーザーのシークレット</param>
 class APIClient(string baseUrl, string token, string secret)
 {
+    public static APIClient Instance { get; set; }
     /// <summary>
     /// Karikari バックエンドのベースURL
     /// </summary>
@@ -62,28 +64,54 @@ class APIClient(string baseUrl, string token, string secret)
         return Convert.ToBase64String(hashBytes);
     }
     /// <summary>
-    /// 現在のユーザーがもつ債務を取得します
+    /// 現在のユーザーにかかるLoanの一覧を取得します
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Loan>> GetLoans()
+    public async Task<IEnumerable<Loan>> GetLoans(User repayer)
     {
+#if DEBUG
+        await Task.Delay(500);
+        return MockLoans.Where(l => l.RepayerId == repayer.Id);
+#else
         HttpRequestMessage request = CreateRequest(HttpMethod.Get, "loans");
         HttpResponseMessage response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<List<Loan>>(responseBody);
+#endif
     }
-    /// <summary>
-    /// 現在のユーザーがもつ債権を取得します
-    /// </summary>
-    /// <returns></returns>
-    public async Task<List<Loan>> GetReceivables()
+    public async Task<Loan> GetLoan(int id, User user)
     {
-        HttpRequestMessage request = CreateRequest(HttpMethod.Get, "receivables");
-        HttpResponseMessage response = await httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-        string responseBody = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<List<Loan>>(responseBody);
+        await Task.Delay(500);
+        return MockLoans.Where(l => l.Id == id && (l.PayerId == user.Id || l.RepayerId == user.Id)).FirstOrDefault();
+    }
+    internal static List<Loan> MockLoans
+    {
+        get
+        {
+            return
+            [
+                new() { Id = 1, Amount = 100, Event = 1, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
+                new() { Id = 2, Amount = 200, Event = 2, PayerId = 2, RepayerId = 1, Payer = MockUsers[1], Repayer = MockUsers[0] },
+                new() { Id = 3, Amount = 300, Event = 3, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
+                new() { Id = 4, Amount = 400, Event = 4, PayerId = 2, RepayerId = 1, Payer = MockUsers[1], Repayer = MockUsers[0] },
+                new() { Id = 5, Amount = 500, Event = 5, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
+            ];
+        }
+    }
+    internal static List<User> MockUsers
+    {
+        get
+        {
+            return
+            [
+                new() { Id = 1, Name = "Alice" },
+                new() { Id = 2, Name = "Bob" },
+                new() { Id = 3, Name = "Charlie" },
+                new() { Id = 4, Name = "David" },
+                new() { Id = 5, Name = "Eve" },
+            ];
+        }
     }
 
 }
