@@ -1,42 +1,54 @@
 @using Microsoft.JSInterop
 @using System.Text.Json
 @using Shogendar.Karikari.Models
+@using System.Globalization
 
 @inject DialogService DialogService
 @inject IJSRuntime JSRuntime
 @page "/return"
 
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center"
+    Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="人を選択" Component="DropDownBindValue" />
+    <RadzenDropDown @bind-Value=@SelectedUser Data=@Users TextProperty="Name" Style="width: 100%; max-width: 400px;"
+        Name="DropDownBindValue" Change="@Reflesh" />
+</RadzenStack>
+
 <ItemContainer Item=@TotalAmount>
-    <WalletCard Amount=@(TotalAmount.Value) Title="これから返ってくる金額" />
+    <WalletCard Amount=@(TotalAmount.Value) Title=@($"あなたが{SelectedUser?.Name}から返ってくる金額") />
 </ItemContainer>
 <hr />
-<ItemContainer Item=@Returns>
+<ItemContainer Item=@Loans>
     <RadzenTable GridLines="DataGridGridLines.Vertical" AllowAlternatingRows="false">
         <RadzenTableHeader>
             <RadzenTableHeaderRow>
-                <RadzenTableHeaderCell>名前</RadzenTableHeaderCell>
                 <RadzenTableHeaderCell>金額</RadzenTableHeaderCell>
+                <RadzenTableHeaderCell>タイトル</RadzenTableHeaderCell>
             </RadzenTableHeaderRow>
         </RadzenTableHeader>
         <RadzenTableBody>
-            @foreach (var ret in Returns)
+            @foreach (var loan in Loans)
             {
-                            <RadzenTableRow>
-                                <RadzenTableCell>@ret.Payer.Name</RadzenTableCell>
-                                <RadzenTableCell>@ret.Amount</RadzenTableCell>
-                                <RadzenTableCell>
-                                    <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
-                                        Path=@($"loanDetails/{ret.Id}") />
-                                </RadzenTableCell>
-                            </RadzenTableRow>
+                <RadzenTableRow>
+                    <RadzenTableCell>@loan.Amount.ToString("C", new CultureInfo("ja-JP"))</RadzenTableCell>
+                    <RadzenTableCell>@loan.Title</RadzenTableCell>
+                    <RadzenTableCell>
+                        <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
+                            Path=@($"loanDetails/{loan.Id}") />
+                    </RadzenTableCell>
+                </RadzenTableRow>
             }
         </RadzenTableBody>
     </RadzenTable>
 </ItemContainer>
 
+<FloatingButton Click="OnFloatingButtonClicked" />
 @code {
-    public IEnumerable<Loan> Returns { get; set; }
+    public IEnumerable<Loan> Loans { get; set; }
     public decimal? TotalAmount { get; set; }
+    IEnumerable<User> Users { get; set; }
+    readonly User Everyone = new User { Id = 0, Name = "全員" };
+    User SelectedUser { get; set; }
     public async Task OnLoginClicked()
     {
         await LocalUser.Instance.Login();
@@ -45,9 +57,27 @@
     {
         await Task.Run(() => LocalUser.Instance.Logout());
     }
+    private async void OnFloatingButtonClicked()
+    {
+        await DialogService.OpenAsync<NewLoan>($"貸し借り",
+        new Dictionary<string, object>() { },
+        new DialogOptions()
+        {
+            Width = "10%",
+            Height = "10%"
+        });
+    }
+    private async Task Reflesh()
+    {
+        Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, true)).Prepend(Everyone);
+        Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, true);
+        TotalAmount = Loans?.Sum(l => l.Amount);
+
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
-        Returns = await APIClient.Instance.GetReturns(LocalUser.Instance.User);
-        TotalAmount = Returns.Sum(l => l.Amount);
+        SelectedUser = Everyone;
+        await Reflesh();
     }
 }

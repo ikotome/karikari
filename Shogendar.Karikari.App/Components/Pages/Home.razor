@@ -69,18 +69,15 @@
     }
     private async Task Reflesh()
     {
-        Users = (await APIClient.Instance.GetUsers(LocalUser.Instance.User, false)).Prepend(Everyone);
-        if (SelectedUser == Everyone || SelectedUser == null)
-            Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User);
-        else
-            Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser);
-        TotalAmount = Loans.Sum(l => l.Amount);
+        Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, false)).Prepend(Everyone);
+        Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, false);
+        TotalAmount = Loans?.Sum(l => l.Amount);
 
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
-        await Reflesh();
         SelectedUser = Everyone;
+        await Reflesh();
     }
 }
