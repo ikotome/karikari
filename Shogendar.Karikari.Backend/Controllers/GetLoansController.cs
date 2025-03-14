@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,14 +9,15 @@ namespace Shogendar.Karikari.Backend.Controllers
     public class GetLoansController : ControllerBase
     {
         [HttpGet]
-        public IActionResult GetLoans(int myId, int otherId ,bool userType){
+        public IActionResult GetLoans(int myId, int otherId, bool userType)
+        {
             Db db = new();
             var query = from Loan in db.Loans
                         where userType ? Loan.PayerId == myId && Loan.RepayerId == otherId : Loan.RepayerId == myId && Loan.PayerId == otherId
                         select Loan;
-            if(!query.Any())
+            if (!query.Any())
                 return NotFound();
-            return Ok(query.ToList());
+            return Ok(JsonSerializer.Serialize(query.ToList()));
         }
     }
 }

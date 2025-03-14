@@ -104,6 +104,13 @@ class APIClient(string baseUrl, string token, string secret)
         await Task.Delay(500);
         return MockLoans.Where(l => user.Id == (isReturn ? l.PayerId : l.RepayerId)).Select(l => isReturn ? l.Repayer : l.Payer).Distinct(UserComparer).ToList();
     }
+    public async Task<List<Loan>> GetLoansAsync(User my, User other)
+    {
+        HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/GetLoans?myId={my.Id}&otherId={other.Id}");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<Loan>>(responseBody);
+    }
     internal static List<Loan> MockLoans
     {
         get
@@ -124,11 +131,9 @@ class APIClient(string baseUrl, string token, string secret)
         {
             return
             [
-                new() { Id = 1, Name = "Alice" },
-                new() { Id = 2, Name = "Bob" },
-                new() { Id = 3, Name = "Charlie" },
-                new() { Id = 4, Name = "David" },
-                new() { Id = 5, Name = "Eve" },
+                new() { Id = 1, Name = "taiseiue" },
+                new() { Id = 2, Name = "ikotome" },
+                new() { Id = 3, Name = "openHackU" },
             ];
         }
     }

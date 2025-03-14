@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,51 +10,57 @@ namespace Shogendar.Karikari.Backend.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
-         [HttpGet]
-        public IActionResult ShowGroup(int id){
+        [HttpGet]
+        public IActionResult ShowGroup(int id)
+        {
             Db db = new();
             var query = from Group in db.Groups
-                            where Group.Id == id
-                            select Group;
-            if(!query.Any())
+                        where Group.Id == id
+                        select Group;
+            if (!query.Any())
                 return NotFound();
-            return Ok(query.ToList());
+            return Ok(JsonSerializer.Serialize(query.ToList()));
         }
 
         [HttpPut]
-        public IActionResult CreateOrUpdateGroup(int groupId, string name, List<User> users){
+        public IActionResult CreateOrUpdateGroup(int groupId, string name, List<User> users)
+        {
             Db db = new();
             Models.Group result;
-            if (groupId == 0){
-                result = new Models.Group{ Name = name, };
+            if (groupId == 0)
+            {
+                result = new Models.Group { Name = name, };
                 db.Groups.Add(result);
-            }else{
+            }
+            else
+            {
                 var query = from Group in db.Groups
                             where Group.Id == groupId
                             select Group;
                 result = query.FirstOrDefault();
-                if(result is null)
+                if (result is null)
                     result = new Models.Group { Id = groupId };
-                    db.Groups.Add(result);
+                db.Groups.Add(result);
                 result.Name = name;
                 result.Users = users;
             }
             db.SaveChanges();
-            return Created("",result);
+            return Created("", JsonSerializer.Serialize(result));
         }
 
         [HttpDelete]
-        public IActionResult DeleateGroup(int groupId){
+        public IActionResult DeleateGroup(int groupId)
+        {
             Db db = new();
             var query = from Group in db.Groups
-                            where Group.Id == groupId
-                            select Group;
-            if(!query.Any())
+                        where Group.Id == groupId
+                        select Group;
+            if (!query.Any())
                 return NotFound();
             Models.Group result = query.FirstOrDefault();
             db.Groups.Remove(result);
             db.SaveChanges();
-            return Ok(query.ToList());
+            return Ok(JsonSerializer.Serialize(query.ToList()));
         }
     }
 }
