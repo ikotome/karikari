@@ -10,9 +10,18 @@ namespace Shogendar.Karikari.Backend.Controllers
         [HttpGet]
         public IActionResult GetLoans(int myId, int otherId ,bool userType){
             Db db = new();
-            var query = from Loan in db.Loans
+            IOrderedQueryable<Models.Loan> query;
+            if(otherId == 0){
+                query = from Loan in db.Loans
+                            where userType ? Loan.PayerId == myId  : Loan.RepayerId == myId 
+                            orderby Loan.PayDate descending
+                            select Loan;
+            }else{
+                query = from Loan in db.Loans
                         where userType ? Loan.PayerId == myId && Loan.RepayerId == otherId : Loan.RepayerId == myId && Loan.PayerId == otherId
+                        orderby Loan.PayDate descending
                         select Loan;
+            }
             if(!query.Any())
                 return NotFound();
             return Ok(query.ToList());

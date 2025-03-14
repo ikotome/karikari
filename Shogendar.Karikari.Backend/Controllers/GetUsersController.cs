@@ -17,6 +17,7 @@ namespace Shogendar.Karikari.Backend.Controllers
             Db db = new();
             var query = from loan in db.Loans
                             where (userType ? loan.PayerId : loan.RepayerId) == id
+                            orderby loan.PayDate descending
                             select userType ? loan.Repayer : loan.Payer;
             if(!query.Any())
                 return NotFound();
