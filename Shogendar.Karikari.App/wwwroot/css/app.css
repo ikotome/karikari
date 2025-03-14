@@ -155,7 +155,7 @@ h1:focus {
     right: 0;
     height: 60px;
     padding: 5px 0;
-    background-color: white;
+    background-color: var(--rz-base);
     display: flex;
     justify-content: space-around;
     align-items: center;

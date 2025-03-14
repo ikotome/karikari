@@ -20,12 +20,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
         <Nullable>enable</Nullable>
+        <AssemblyName>KariKari</AssemblyName>
 
         <!-- Display name -->
-        <ApplicationTitle>Shogendar.Karikari.App</ApplicationTitle>
+        <ApplicationTitle>KariKari</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.shogendar.karikari.app</ApplicationId>
+        <ApplicationId>com.shogendar.karikari</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

@@ -1,0 +1,20 @@
+
+@if (Item is null)
+{
+       <RadzenStack AlignItems="AlignItems.Center"  class="rz-m-12" Gap="2rem">
+            <RadzenProgressBarCircular Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">お待ちください</RadzenText>
+       </RadzenStack>
+}
+else
+{
+    @ChildContent
+}
+
+@code
+{
+    [Parameter]
+    public object Item { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

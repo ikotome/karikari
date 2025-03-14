@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Shogendar.Karikari.Models;
 
 namespace Shogendar.Karikari.App;
 
@@ -66,4 +67,5 @@ class LocalUser
     {
         Token = null;
     }
+    public User User { get; set; } = APIClient.MockUsers.First();
 }

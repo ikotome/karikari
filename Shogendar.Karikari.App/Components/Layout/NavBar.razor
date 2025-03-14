@@ -5,45 +5,46 @@
 <div class="nav-container @(_isMobileView ? "mobile-view" : "desktop-view")">
     <RadzenLayout style="width: 100%;">
         <RadzenHeader>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
                 <RadzenLabel Text="Header" />
             </RadzenStack>
         </RadzenHeader>
         @if (_isMobileView)
         {
-                                <RadzenBody>
-                                    <div class="content-with-bottom-nav">
-                                        @ChildContent
-                                    </div>
-                                </RadzenBody>
-                                <RadzenFooter>
-                                    <RadzenCard class="bottom-nav">
-                                        @foreach (var item in NavigationItems)
-                                        {
-                                                            <div class="bottom-nav-item @(IsActive(item) ? "active" : "")" @onclick="() => NavigateTo(item.Path)">
-                                                                <RadzenIcon Icon="@item.Icon" />
-                                                                <div class="item-text">@item.Text</div>
-                                                            </div>
-                                        }
-                                    </RadzenCard>
-                                </RadzenFooter>
+            <RadzenBody>
+                <div class="content-with-bottom-nav">
+                    @ChildContent
+                </div>
+            </RadzenBody>
+            <RadzenFooter>
+                <RadzenCard class="bottom-nav">
+                    @foreach (var item in NavigationItems)
+                    {
+                        <div class="bottom-nav-item @(IsActive(item) ? "active" : "")" @onclick="() => NavigateTo(item.Path)">
+                            <RadzenIcon Icon="@item.Icon" />
+                            <div class="item-text">@item.Text</div>
+                        </div>
+                    }
+                </RadzenCard>
+            </RadzenFooter>
         }
         else
         {
-                        <RadzenSidebar @bind-Expanded="@_sidebarExpanded">
-                            <RadzenSidebarToggle />
-                            <RadzenPanelMenu>
-                                @foreach (var item in NavigationItems)
-                                {
-                                                <RadzenPanelMenuItem Text="@item.Text" Icon="@item.Icon" Path="@item.Path" Click="() => NavigateTo(item.Path)"/>
-                                }
-                            </RadzenPanelMenu>
-                        </RadzenSidebar>
-                        <RadzenBody>
-                            <div class="rz-p-4">
-                                @ChildContent
-                            </div>
-                        </RadzenBody>
+            <RadzenSidebar @bind-Expanded="@_sidebarExpanded">
+                <RadzenSidebarToggle />
+                <RadzenPanelMenu>
+                    @foreach (var item in NavigationItems)
+                    {
+                        <RadzenPanelMenuItem Text="@item.Text" Icon="@item.Icon" Path="@item.Path"
+                            Click="() => NavigateTo(item.Path)" />
+                    }
+                </RadzenPanelMenu>
+            </RadzenSidebar>
+            <RadzenBody>
+                <div class="rz-p-4">
+                    @ChildContent
+                </div>
+            </RadzenBody>
         }
     </RadzenLayout>
 </div>
@@ -70,7 +71,7 @@
     {
         _objRef = DotNetObjectReference.Create(this);
         _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/app.js");
-        
+
         await CheckWindowSize();
         await _module.InvokeVoidAsync("addResizeListener", _objRef);
     }
