@@ -28,12 +28,6 @@ class APIClient(string baseUrl, string token, string secret)
     private readonly string m_token = token;
     private readonly string m_secret = secret;
 
-    /// <summary>
-    /// HMAC-SHA256で署名されたHttpリクエストを作成します
-    /// </summary>
-    /// <param name="method">リクエストメソッド</param>
-    /// <param name="requestEndPoint">リクエスト先のエンドポイント</param>
-    /// <returns>作成したHttpリクエスト</returns>
     private HttpRequestMessage CreateRequest(HttpMethod method, string requestEndPoint, Dictionary<string, string> queryParameters = null)
     {
         string nonce = Guid.NewGuid().ToString();
@@ -64,6 +58,83 @@ class APIClient(string baseUrl, string token, string secret)
         byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
         return Convert.ToBase64String(hashBytes);
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userType">自分が貸した側の場合はtrue、そうでない場合はfalse</param>
+    /// <returns></returns>
+    public async Task<List<Loan>> GetLoansAsync(User my, User other, bool userType)
+    {
+        var response = await httpClient.GetAsync($"{m_baseUrl}/GetLoans/?myId={my.Id}&otherId={other.Id}&userType={userType}");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<Loan>>(responseBody);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userType">自分が貸した側の場合はtrue、そうでない場合はfalse</param>
+    /// <returns></returns>
+    public async Task<List<User>> GetUsersAsync(User my, bool userType)
+    {
+        var response = await httpClient.GetAsync($"{m_baseUrl}/GetUsers?id={my.Id}&userType={userType}");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<User>>(responseBody);
+    }
+    public async Task<List<Loan>> GetLoansAsync(User user)
+    {
+        var response = await httpClient.GetAsync($"{m_baseUrl}/Loan?id={user.Id}");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<Loan>>(responseBody);
+    }
+    public async Task<Loan> PutLoanAsync(int loanId, string title, string description, int amount, User payer, User repayer, LoanType type, PaymentMethod method)
+    {
+        var query = new Dictionary<string, string>{
+            { "loanId", loanId.ToString() },
+            { "title", title },
+            { "description", description },
+            { "amount", amount.ToString() },
+            { "payerId", payer.Id.ToString() },
+            { "repayerId", repayer.Id.ToString() },
+            { "type", ((int)type).ToString() },
+            { "method", ((int)method).ToString() },
+            { "paydate", DateTime.Now.ToString() },
+            { "repaydate", DateTime.Now.AddDays(30).ToString() }
+        };
+        var data = new StringContent("", Encoding.UTF8, mediaType: "text/plain");
+        var response = await httpClient.PutAsync($"{m_baseUrl}/Loan?{await new FormUrlEncodedContent(query).ReadAsStringAsync()}", data);
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Loan>(responseBody);
+    }
+    public async Task<User> GetUserAsync(int id)
+    {
+        var response = await httpClient.GetAsync($"{m_baseUrl}/User?id={id}");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<User>>(responseBody).FirstOrDefault();
+    }
+    public async Task<User> PutUserAsync(int userId, string name, string email, string password)
+    {
+        var query = new Dictionary<string, string>{
+            { "userId", userId.ToString() },
+            { "name", name },
+            { "email", email },
+            { "password", password }
+        };
+        var data = new StringContent("", Encoding.UTF8, mediaType: "text/plain");
+        var response = await httpClient.PutAsync($"{m_baseUrl}/User?{await new FormUrlEncodedContent(query).ReadAsStringAsync()}", data);
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<User>(responseBody);
+    }
+
+
     /// <summary>
     /// 現在のユーザーが返すべきローンを取得します
     /// </summary>

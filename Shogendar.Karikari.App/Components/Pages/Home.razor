@@ -6,9 +6,15 @@
 @inject IJSRuntime JSRuntime
 @page "/"
 
-<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+<div>
+    @Log
+</div>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center"
+    Gap="0.5rem" class="rz-p-sm-12">
     <RadzenLabel Text="Select Value" Component="DropDownBindValue" />
-    <RadzenDropDown @bind-Value=@SelectedUser Data=@Users TextProperty="Name" Style="width: 100%; max-width: 400px;" Name="DropDownBindValue" SelectedItemChanged="@Reflesh" />
+    <RadzenDropDown @bind-Value=@SelectedUser Data=@Users TextProperty="Name" Style="width: 100%; max-width: 400px;"
+        Name="DropDownBindValue" SelectedItemChanged="@Reflesh" />
 </RadzenStack>
 
 <ItemContainer Item=@TotalAmount>
@@ -26,13 +32,14 @@
         <RadzenTableBody>
             @foreach (var loan in Loans)
             {
-                                                                <RadzenTableRow>
-                                                                    <RadzenTableCell>@loan.Payer.Name</RadzenTableCell>
-                                                                    <RadzenTableCell>@loan.Amount</RadzenTableCell>
-                                                                    <RadzenTableCell>
-                                                                        <RadzenLink Text="詳しく" Variant="Variant.Outlined"  Style="ButtonStyle.Info" Path=@($"loanDetails/{loan.Id}") />
-                                                                    </RadzenTableCell>
-                                                                </RadzenTableRow>
+                <RadzenTableRow>
+                    <RadzenTableCell>@loan.Payer.Name</RadzenTableCell>
+                    <RadzenTableCell>@loan.Amount</RadzenTableCell>
+                    <RadzenTableCell>
+                        <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
+                            Path=@($"loanDetails/{loan.Id}") />
+                    </RadzenTableCell>
+                </RadzenTableRow>
             }
         </RadzenTableBody>
     </RadzenTable>
@@ -45,6 +52,7 @@
     IEnumerable<User> Users { get; set; }
     readonly User Everyone = new User { Id = 0, Name = "全員" };
     User SelectedUser { get; set; }
+    string Log { get; set; } = "";
     public async Task OnLoginClicked()
     {
         await LocalUser.Instance.Login();
@@ -66,16 +74,21 @@
     private async Task Reflesh()
     {
         if (SelectedUser == Everyone)
-            Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User);
+            Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User);
         else
-            Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User, SelectedUser);
+            Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, false);
         TotalAmount = Loans.Sum(l => l.Amount);
-        Users = (await APIClient.Instance.GetUsers(LocalUser.Instance.User, false)).Prepend(Everyone);
+        Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, false)).Prepend(Everyone);
 
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
+        Log += "Initialized\n";
+        StateHasChanged();
+        var taiseiue = new User { Id = 1, Name = "taiseiue" };
+
+        LocalUser.Instance.User = taiseiue;
         await Reflesh();
         SelectedUser = Everyone;
     }

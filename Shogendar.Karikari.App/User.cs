@@ -67,5 +67,5 @@ class LocalUser
     {
         Token = null;
     }
-    public User User { get; set; } = APIClient.MockUsers.First();
+    public User User { get; set; }
 }

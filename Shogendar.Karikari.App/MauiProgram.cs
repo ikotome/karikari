@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Radzen;
+using Shogendar.Karikari.Models;
 
 namespace Shogendar.Karikari.App;
 
@@ -19,7 +20,7 @@ public static class MauiProgram
 		builder.Services.AddRadzenComponents();
 		builder.Services.AddMauiBlazorWebView();
 
-		APIClient.Instance = new APIClient("https://karikari.wsnet.jp/", "token", "secret");
+		APIClient.Instance = new APIClient("https://karikari-api.wsnet.jp/api", "token", "secret");
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
