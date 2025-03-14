@@ -94,10 +94,19 @@ class APIClient(string baseUrl, string token, string secret)
         await Task.Delay(500);
         return MockLoans.Where(l => l.PayerId == payer.Id).ToList();
     }
-    public async Task<Loan> GetLoan(int id, User user)
+    public async Task<Loan> PutLoanAsync(string title, string description, int payerId, int repayerId, decimal amount, DateTime paydate, DateTime repaydate, LoanType type, PaymentMethod method)
     {
-        await Task.Delay(500);
-        return MockLoans.Where(l => l.Id == id && (l.PayerId == user.Id || l.RepayerId == user.Id)).FirstOrDefault();
+        HttpResponseMessage response = await httpClient.PutAsync($"{m_baseUrl}/Loan?id=0&title={title}&description={description}&payerId={payerId}&repayerId={repayerId}&amount={amount}&paydate={paydate}&repaydate={repaydate}&type={(int)type}&method={(int)method}", null);
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Loan>(responseBody);
+    }
+    public async Task<Loan> GetLoanAsync(int id)
+    {
+        HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/Loan?id={id}");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<Loan>(responseBody);
     }
     public async Task<List<User>> GetUsersAsync(User user, bool isReturn)
     {

@@ -4,6 +4,7 @@
 @using System.Globalization
 
 @inject DialogService DialogService
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @page "/"
 
@@ -29,14 +30,14 @@
         <RadzenTableBody>
             @foreach (var loan in Loans)
             {
-                <RadzenTableRow>
-                    <RadzenTableCell>@loan.Amount.ToString("C", new CultureInfo("ja-JP"))</RadzenTableCell>
-                    <RadzenTableCell>@loan.Title</RadzenTableCell>
-                    <RadzenTableCell>
-                        <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
-                            Path=@($"loanDetails/{loan.Id}") />
-                    </RadzenTableCell>
-                </RadzenTableRow>
+                    <RadzenTableRow>
+                        <RadzenTableCell>@loan.Amount.ToString("C", new CultureInfo("ja-JP"))</RadzenTableCell>
+                        <RadzenTableCell>@loan.Title</RadzenTableCell>
+                        <RadzenTableCell>
+                            <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
+                                Path=@($"loanDetails/{loan.Id}") />
+                        </RadzenTableCell>
+                    </RadzenTableRow>
             }
         </RadzenTableBody>
     </RadzenTable>
@@ -59,19 +60,20 @@
     }
     private async void OnFloatingButtonClicked()
     {
-        await DialogService.OpenAsync<NewLoan>($"貸し借り",
-        new Dictionary<string, object>() { },
-        new DialogOptions()
-        {
-            Width = "10%",
-            Height = "10%"
-        });
+        NavigationManager.NavigateTo("./NewLoan");
     }
     private async Task Reflesh()
     {
         Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, false)).Prepend(Everyone);
         Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, false);
-        TotalAmount = Loans?.Sum(l => l.Amount);
+        TotalAmount = Loans?.Sum(l => l.Amount) - (await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser,
+        true)).Sum(l => l.Amount);
+
+        if (TotalAmount < 0)
+        {
+            // 0未満の場合は0にする
+            TotalAmount = 0;
+        }
 
         StateHasChanged();
     }

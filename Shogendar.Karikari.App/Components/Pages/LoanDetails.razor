@@ -3,13 +3,15 @@
 @using System.Globalization
 
 <ItemContainer Item=@Loan>
-    <WalletCard Amount=@(Loan.Amount) Title="@($"{Loan.Repayer.Name}が、{Loan.Payer.Name}に返すお金")" />
+    <WalletCard Amount=@(Loan.Amount) Title="@Loan.Title" />
 </ItemContainer>
 <hr />
 
 <ItemContainer Item=@Loan>
     <h1>@Loan.Title</h1>
     <p>@Loan.Description</p>
+    <p>日付: @Loan.PayDate.ToString("yyyy/MM/dd")</p>
+    <p>返済期限: @Loan.RepayDate.ToString("yyyy/MM/dd")</p>
 </ItemContainer>
 
 @code {
@@ -19,7 +21,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Loan = await APIClient.Instance.GetLoan(LoanId, LocalUser.Instance.User);
+        Loan = await APIClient.Instance.GetLoanAsync(LoanId);
     }
 
 }

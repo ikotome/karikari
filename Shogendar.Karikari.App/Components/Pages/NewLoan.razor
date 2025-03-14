@@ -1,14 +1,16 @@
 @page "/newloan"
 
-<div class="rz-p-12 rz-text-align-center">
-    <RadzenNumeric TValue="double" Format="#.0000" @bind-Value=@value
-        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" />
-    <RadzenNumeric TValue="double" Format="c" @bind-Value=@value
-        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" />
-    <RadzenNumeric TValue="double" Format="### m2" @bind-Value=@value
-        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" />
+<h1>貸し記録をつける</h1>
 
-</div>
+<form>
+    
+    <RadzenText TextStyle="TextStyle.Subtitle" TagName="TagName.H3">タイトル</RadzenText>
+    <RadzenTextBox Style="width: 100%" aria-label="〜代" />
+    <RadzenText TextStyle="TextStyle.Subtitle" TagName="TagName.H3">説明</RadzenText>
+    <RadzenTextBox Style="width: 100%" aria-label="これを貸した理由..." />
+    <RadzenText TextStyle="TextStyle.Subtitle" TagName="TagName.H3">相手のユーザー名</RadzenText>
+    <RadzenTextBox Style="width: 100%" aria-label="これを貸す相手" />
+</form>
 
 @code {
     double value = 0.0;

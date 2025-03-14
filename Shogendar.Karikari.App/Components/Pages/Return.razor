@@ -71,7 +71,14 @@
     {
         Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, true)).Prepend(Everyone);
         Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, true);
-        TotalAmount = Loans?.Sum(l => l.Amount);
+        TotalAmount = Loans.Sum(l => l.Amount) - (await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser,
+        false)).Sum(l => l.Amount);
+
+        if (TotalAmount < 0)
+        {
+            // 0未満の場合は0にする
+            TotalAmount = 0;
+        }
 
         StateHasChanged();
     }
