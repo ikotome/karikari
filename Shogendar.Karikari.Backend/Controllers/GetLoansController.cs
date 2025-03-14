@@ -13,7 +13,7 @@ namespace Shogendar.Karikari.Backend.Controllers
         {
             Db db = new();
             var query = from Loan in db.Loans
-                        where userType ? Loan.PayerId == myId && Loan.RepayerId == otherId : Loan.RepayerId == myId && Loan.PayerId == otherId
+                        where userType ? Loan.PayerId == myId && (otherId == 0 || Loan.RepayerId == otherId) : Loan.RepayerId == myId && (otherId == 0 || Loan.PayerId == otherId)
                         select Loan;
             if (!query.Any())
                 return NotFound();
