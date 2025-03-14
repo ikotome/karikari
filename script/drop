@@ -1,0 +1,4 @@
+#!/bin/sh
+
+docker compose down db
+rm -r ./data
