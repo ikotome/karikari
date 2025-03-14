@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shogendar.Karikari.Backend;
 
@@ -11,9 +12,11 @@ using Shogendar.Karikari.Backend;
 namespace Shogendar.Karikari.Backend.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20250314112039_fix-loan-model")]
+    partial class fixloanmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,35 @@ namespace Shogendar.Karikari.Backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Shogendar.Karikari.Models.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Group")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PayDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("RepayDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Settled")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Events");
+                });
 
             modelBuilder.Entity("Shogendar.Karikari.Models.Group", b =>
                 {
@@ -50,32 +82,18 @@ namespace Shogendar.Karikari.Backend.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Method")
+                    b.Property<int>("EventId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("PayDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("PayerId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("RepayDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("RepayerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("EventId");
 
                     b.HasIndex("PayerId");
 
@@ -111,6 +129,12 @@ namespace Shogendar.Karikari.Backend.Migrations
 
             modelBuilder.Entity("Shogendar.Karikari.Models.Loan", b =>
                 {
+                    b.HasOne("Shogendar.Karikari.Models.Event", "Event")
+                        .WithMany("Loans")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Shogendar.Karikari.Models.User", "Payer")
                         .WithMany()
                         .HasForeignKey("PayerId")
@@ -123,9 +147,16 @@ namespace Shogendar.Karikari.Backend.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.Navigation("Event");
+
                     b.Navigation("Payer");
 
                     b.Navigation("Repayer");
+                });
+
+            modelBuilder.Entity("Shogendar.Karikari.Models.Event", b =>
+                {
+                    b.Navigation("Loans");
                 });
 #pragma warning restore 612, 618
         }

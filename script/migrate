@@ -1,0 +1,4 @@
+#!/bin/sh
+
+dotnet ef migrations add $1 --project Shogendar.Karikari.Backend \\
+docker compose up migrate --build

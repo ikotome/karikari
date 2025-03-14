@@ -6,7 +6,6 @@ namespace Shogendar.Karikari.Backend;
 public class Db : DbContext
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<Event> Events { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<Loan> Loans { get; set; }
 
