@@ -14,7 +14,10 @@ namespace Shogendar.Karikari.Backend.Controllers
             var query = from Event in db.Events
                         where Event.Id == id
                         select Event;
+            if(!query.Any())
+                return NotFound();
             return Ok(query.ToList());
+
         }
 
         [HttpPut]
