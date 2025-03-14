@@ -38,6 +38,7 @@ namespace Shogendar.Karikari.Backend.Controllers
                 result = query.FirstOrDefault();
                 if(result is null)
                     result = new Loan { Id = loanId, Title = title, PayerId = payerId, RepayerId = repayerId, Amount = amount, Type = type};
+                    db.Loans.Add(result);
                 result.Description = description;
                 result.PayDate = paydate;
                 result.RepayDate = repaydate;

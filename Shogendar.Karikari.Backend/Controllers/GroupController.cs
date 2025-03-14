@@ -34,6 +34,7 @@ namespace Shogendar.Karikari.Backend.Controllers
                 result = query.FirstOrDefault();
                 if(result is null)
                     result = new Models.Group { Id = groupId };
+                    db.Groups.Add(result);
                 result.Name = name;
                 result.Users = users;
             }

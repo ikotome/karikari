@@ -6,11 +6,12 @@ namespace Shogendar.Karikari.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FriendController : ControllerBase
+    public class GetUsersController : ControllerBase
     {
         [HttpGet]
         ///<summary>
         /// GetUsersAPIは、自分が 借り/貸し している人のLoanListが出ます
+        /// ture: 自分が貸した側  false:自分が借りた側
         ///</summary>
         public IActionResult GetUsers(int id, bool userType){
             Db db = new();
@@ -19,7 +20,8 @@ namespace Shogendar.Karikari.Backend.Controllers
                             select userType ? loan.Repayer : loan.Payer;
             if(!query.Any())
                 return NotFound();
-            return Ok(query);
+            return Ok(query.ToList());
         }
+        
     }
 }
