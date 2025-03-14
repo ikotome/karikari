@@ -1,0 +1,53 @@
+@using Microsoft.JSInterop
+@using System.Text.Json
+@using Shogendar.Karikari.Models
+
+@inject DialogService DialogService
+@inject IJSRuntime JSRuntime
+@page "/return"
+
+<ItemContainer Item=@TotalAmount>
+    <WalletCard Amount=@(TotalAmount.Value) Title="これから返ってくる金額" />
+</ItemContainer>
+<hr />
+<ItemContainer Item=@Returns>
+    <RadzenTable GridLines="DataGridGridLines.Vertical" AllowAlternatingRows="false">
+        <RadzenTableHeader>
+            <RadzenTableHeaderRow>
+                <RadzenTableHeaderCell>名前</RadzenTableHeaderCell>
+                <RadzenTableHeaderCell>金額</RadzenTableHeaderCell>
+            </RadzenTableHeaderRow>
+        </RadzenTableHeader>
+        <RadzenTableBody>
+            @foreach (var ret in Returns)
+            {
+                            <RadzenTableRow>
+                                <RadzenTableCell>@ret.Payer.Name</RadzenTableCell>
+                                <RadzenTableCell>@ret.Amount</RadzenTableCell>
+                                <RadzenTableCell>
+                                    <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
+                                        Path=@($"loanDetails/{ret.Id}") />
+                                </RadzenTableCell>
+                            </RadzenTableRow>
+            }
+        </RadzenTableBody>
+    </RadzenTable>
+</ItemContainer>
+
+@code {
+    public IEnumerable<Loan> Returns { get; set; }
+    public decimal? TotalAmount { get; set; }
+    public async Task OnLoginClicked()
+    {
+        await LocalUser.Instance.Login();
+    }
+    public async Task OnLogoutClicked()
+    {
+        await Task.Run(() => LocalUser.Instance.Logout());
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Returns = await APIClient.Instance.GetReturns(LocalUser.Instance.User);
+        TotalAmount = Returns.Sum(l => l.Amount);
+    }
+}

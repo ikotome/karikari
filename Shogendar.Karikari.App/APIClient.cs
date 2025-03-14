@@ -16,6 +16,7 @@ namespace Shogendar.Karikari.App;
 class APIClient(string baseUrl, string token, string secret)
 {
     public static APIClient Instance { get; set; }
+    public static UserComparer UserComparer { get; set; } = new();
     /// <summary>
     /// Karikari バックエンドのベースURL
     /// </summary>
@@ -64,14 +65,17 @@ class APIClient(string baseUrl, string token, string secret)
         return Convert.ToBase64String(hashBytes);
     }
     /// <summary>
-    /// 現在のユーザーにかかるLoanの一覧を取得します
+    /// 現在のユーザーが返すべきローンを取得します
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<Loan>> GetLoans(User repayer)
+    public async Task<List<Loan>> GetLoans(User currentUser, User targetUser = null)
     {
 #if DEBUG
         await Task.Delay(500);
-        return MockLoans.Where(l => l.RepayerId == repayer.Id);
+        if (targetUser is null)
+            return MockLoans.Where(l => l.PayerId == currentUser.Id).ToList();
+        else
+            return MockLoans.Where(l => l.PayerId == currentUser.Id && l.RepayerId == targetUser.Id).ToList();
 #else
         HttpRequestMessage request = CreateRequest(HttpMethod.Get, "loans");
         HttpResponseMessage response = await httpClient.SendAsync(request);
@@ -80,10 +84,25 @@ class APIClient(string baseUrl, string token, string secret)
         return JsonSerializer.Deserialize<List<Loan>>(responseBody);
 #endif
     }
+    /// <summary>
+    /// 現在のユーザーが貸しているローンを取得します
+    /// </summary>
+    /// <param name="payer"></param>
+    /// <returns></returns>
+    public async Task<List<Loan>> GetReturns(User payer)
+    {
+        await Task.Delay(500);
+        return MockLoans.Where(l => l.PayerId == payer.Id).ToList();
+    }
     public async Task<Loan> GetLoan(int id, User user)
     {
         await Task.Delay(500);
         return MockLoans.Where(l => l.Id == id && (l.PayerId == user.Id || l.RepayerId == user.Id)).FirstOrDefault();
+    }
+    public async Task<List<User>> GetUsers(User user, bool isReturn)
+    {
+        await Task.Delay(500);
+        return MockLoans.Where(l => user.Id == (isReturn ? l.PayerId : l.RepayerId)).Select(l => isReturn ? l.Repayer : l.Payer).Distinct(UserComparer).ToList();
     }
     internal static List<Loan> MockLoans
     {
@@ -91,11 +110,11 @@ class APIClient(string baseUrl, string token, string secret)
         {
             return
             [
-                new() { Id = 1, Amount = 100, Event = 1, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
-                new() { Id = 2, Amount = 200, Event = 2, PayerId = 2, RepayerId = 1, Payer = MockUsers[1], Repayer = MockUsers[0] },
-                new() { Id = 3, Amount = 300, Event = 3, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
-                new() { Id = 4, Amount = 400, Event = 4, PayerId = 2, RepayerId = 1, Payer = MockUsers[1], Repayer = MockUsers[0] },
-                new() { Id = 5, Amount = 500, Event = 5, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
+                new() { Id = 1, Amount = 100, Title = "マクド", Description = "マクド サイゼ カプチョ", Type = LoanType.Lent, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
+                new() { Id = 2, Amount = 200, Title = "ギター", Description = "ギター ベース ドラム", Type = LoanType.Lent, PayerId = 2, RepayerId = 1, Payer = MockUsers[1], Repayer = MockUsers[0] },
+                new() { Id = 3, Amount = 300, Title = "タコス", Description = "タコス ココス コスタ", Type = LoanType.Return, PayerId = 1, RepayerId = 3, Payer = MockUsers[0], Repayer = MockUsers[2] },
+                new() { Id = 4, Amount = 400, Title = "コンビニ", Description = "コンビニ ミラクル ミルク", Type = LoanType.Return, PayerId = 2, RepayerId = 2, Payer = MockUsers[2], Repayer = MockUsers[0] },
+                new() { Id = 5, Amount = 500, Title = "ティラミス", Description = "ティラミス ヨウセイ アマイ", Type = LoanType.Return, PayerId = 1, RepayerId = 2, Payer = MockUsers[0], Repayer = MockUsers[1] },
             ];
         }
     }

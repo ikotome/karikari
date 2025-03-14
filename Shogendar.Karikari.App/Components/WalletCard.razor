@@ -4,10 +4,9 @@
         <RadzenCard Variant="Variant.Filled" class="rz-my-12 rz-mx-auto">
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start"
                 AlignItems="AlignItems.Center" Gap="1rem">
-                <RadzenText TextStyle="TextStyle.DisplayH4">これから返す金額</RadzenText>
-                <ItemContainer Item="@Amount">
-                    <RadzenText TextStyle="TextStyle.DisplayH2">@Amount.Value.ToString("C", new CultureInfo("ja-JP"))</RadzenText>
-                </ItemContainer>
+                <RadzenText TextStyle="TextStyle.DisplayH4">@Title</RadzenText>
+                <RadzenText TextStyle="TextStyle.DisplayH2">@Amount.ToString("C", new CultureInfo("ja-JP"))
+                </RadzenText>
             </RadzenStack>
         </RadzenCard>
     </div>
@@ -15,5 +14,7 @@
 
 @code {
     [Parameter]
-    public required decimal? Amount { get; set; }
+    public required decimal Amount { get; set; }
+    [Parameter]
+    public string Title { get; set; }
 }

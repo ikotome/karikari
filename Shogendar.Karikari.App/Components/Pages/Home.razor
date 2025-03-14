@@ -6,8 +6,13 @@
 @inject IJSRuntime JSRuntime
 @page "/"
 
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="Select Value" Component="DropDownBindValue" />
+    <RadzenDropDown @bind-Value=@SelectedUser Data=@Users TextProperty="Name" Style="width: 100%; max-width: 400px;" Name="DropDownBindValue" SelectedItemChanged="@Reflesh" />
+</RadzenStack>
+
 <ItemContainer Item=@TotalAmount>
-    <WalletCard Amount=@TotalAmount />
+    <WalletCard Amount=@(TotalAmount.Value) Title="これから返す金額" />
 </ItemContainer>
 <hr />
 <ItemContainer Item=@Loans>
@@ -21,13 +26,13 @@
         <RadzenTableBody>
             @foreach (var loan in Loans)
             {
-                                                <RadzenTableRow>
-                                                    <RadzenTableCell>@loan.Payer.Name</RadzenTableCell>
-                                                    <RadzenTableCell>@loan.Amount</RadzenTableCell>
-                                                    <RadzenTableCell>
-                                                        <RadzenLink Text="詳しく" Variant="Variant.Outlined"  Style="ButtonStyle.Info" Path=@($"loanDetails/{loan.Id}") />
-                                                    </RadzenTableCell>
-                                                </RadzenTableRow>
+                                                                <RadzenTableRow>
+                                                                    <RadzenTableCell>@loan.Payer.Name</RadzenTableCell>
+                                                                    <RadzenTableCell>@loan.Amount</RadzenTableCell>
+                                                                    <RadzenTableCell>
+                                                                        <RadzenLink Text="詳しく" Variant="Variant.Outlined"  Style="ButtonStyle.Info" Path=@($"loanDetails/{loan.Id}") />
+                                                                    </RadzenTableCell>
+                                                                </RadzenTableRow>
             }
         </RadzenTableBody>
     </RadzenTable>
@@ -37,6 +42,9 @@
 @code {
     public IEnumerable<Loan> Loans { get; set; }
     public decimal? TotalAmount { get; set; }
+    IEnumerable<User> Users { get; set; }
+    readonly User Everyone = new User { Id = 0, Name = "全員" };
+    User SelectedUser { get; set; }
     public async Task OnLoginClicked()
     {
         await LocalUser.Instance.Login();
@@ -55,9 +63,20 @@
             Height = "10%"
         });
     }
+    private async Task Reflesh()
+    {
+        if (SelectedUser == Everyone)
+            Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User);
+        else
+            Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User, SelectedUser);
+        TotalAmount = Loans.Sum(l => l.Amount);
+        Users = (await APIClient.Instance.GetUsers(LocalUser.Instance.User, false)).Prepend(Everyone);
+
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
-        Loans = await APIClient.Instance.GetLoans(LocalUser.Instance.User);
-        TotalAmount = Loans.Sum(l => l.Amount);
+        await Reflesh();
+        SelectedUser = Everyone;
     }
 }
