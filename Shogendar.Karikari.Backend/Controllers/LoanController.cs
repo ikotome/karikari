@@ -1,4 +1,5 @@
 using System.Xml.XPath;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,11 +23,11 @@ namespace Shogendar.Karikari.Backend.Controllers
         }
 
         [HttpPut]
-        public IActionResult CreateLoans(int loanId, Event eventId, int payerId, int repayerId, decimal amount){
+        public IActionResult CreateLoans(int loanId, string title, string description, int payerId, int repayerId, decimal amount, DateTime paydate, DateTime repaydate, LoanType type, PaymentMethod method){
             Db db = new();
             Loan result;
             if (loanId == 0){
-                result = new Models.Loan { PayerId = payerId, RepayerId = repayerId, Amount = amount};
+                result = new Models.Loan { Title = title, Description = description, PayerId = payerId, RepayerId = repayerId, Amount = amount, PayDate = paydate, RepayDate = repaydate, Type = type, Method = method};
                 db.Loans.Add(result);
             }else{
                 // Loanから loanIdを元に
@@ -35,10 +36,11 @@ namespace Shogendar.Karikari.Backend.Controllers
                             select Loan;
                 result = query.FirstOrDefault();
                 if(result is null)
-                    result = new Loan { Id = loanId, Event = eventId };
-                result.PayerId = payerId;
-                result.RepayerId = repayerId;
-                result.Amount = amount;
+                    result = new Loan { Id = loanId, Title = title, PayerId = payerId, RepayerId = repayerId, Amount = amount, Type = type};
+                result.Description = description;
+                result.PayDate = paydate;
+                result.RepayDate = repaydate;
+                result.Method = method;
             }
             db.SaveChanges();
             return Created("", result);
