@@ -30,14 +30,14 @@
         <RadzenTableBody>
             @foreach (var loan in Loans)
             {
-                    <RadzenTableRow>
-                        <RadzenTableCell>@loan.Amount.ToString("C", new CultureInfo("ja-JP"))</RadzenTableCell>
-                        <RadzenTableCell>@loan.Title</RadzenTableCell>
-                        <RadzenTableCell>
-                            <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
-                                Path=@($"loanDetails/{loan.Id}") />
-                        </RadzenTableCell>
-                    </RadzenTableRow>
+                <RadzenTableRow>
+                    <RadzenTableCell>@loan.Amount.ToString("C", new CultureInfo("ja-JP"))</RadzenTableCell>
+                    <RadzenTableCell>@loan.Title</RadzenTableCell>
+                    <RadzenTableCell>
+                        <RadzenLink Text="詳しく" Variant="Variant.Outlined" Style="ButtonStyle.Info"
+                            Path=@($"loanDetails/{loan.Id}") />
+                    </RadzenTableCell>
+                </RadzenTableRow>
             }
         </RadzenTableBody>
     </RadzenTable>
@@ -64,10 +64,21 @@
     }
     private async Task Reflesh()
     {
-        Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, false)).Prepend(Everyone);
+        var users = new List<User> { Everyone };
+        try
+        {
+            users.AddRange(await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, false));
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        Users = users.DistinctBy(u => u.Id);
         Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, false);
-        TotalAmount = Loans?.Sum(l => l.Amount) - (await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser,
-        true)).Sum(l => l.Amount);
+        TotalAmount = Loans?.Sum(l => l.Amount) - ((await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User,
+        SelectedUser,
+        true))?.Sum(l => l.Amount) ?? 0);
 
         if (TotalAmount < 0)
         {

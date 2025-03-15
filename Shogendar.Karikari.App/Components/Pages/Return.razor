@@ -3,8 +3,8 @@
 @using Shogendar.Karikari.Models
 @using System.Globalization
 
-@inject DialogService DialogService
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 @page "/return"
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center"
@@ -59,20 +59,24 @@
     }
     private async void OnFloatingButtonClicked()
     {
-        await DialogService.OpenAsync<NewLoan>($"貸し借り",
-        new Dictionary<string, object>() { },
-        new DialogOptions()
-        {
-            Width = "10%",
-            Height = "10%"
-        });
+        NavigationManager.NavigateTo("./NewLoan");
     }
     private async Task Reflesh()
     {
-        Users = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, true)).Prepend(Everyone);
+        var users = new List<User> { Everyone };
+        try
+        {
+            users.AddRange(await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, true));
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        Users = users.DistinctBy(u => u.Id);
         Loans = await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser, true);
-        TotalAmount = Loans.Sum(l => l.Amount) - (await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser,
-        false)).Sum(l => l.Amount);
+        TotalAmount = Loans.Sum(l => l.Amount) - ((await APIClient.Instance.GetLoansAsync(LocalUser.Instance.User, SelectedUser,
+        false))?.Sum(l => l.Amount) ?? 0);
 
         if (TotalAmount < 0)
         {

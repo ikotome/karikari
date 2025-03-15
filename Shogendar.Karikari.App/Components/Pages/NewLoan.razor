@@ -101,16 +101,9 @@
     }
     async Task OnSubmit(Loan loan)
     {
-        try
-        {
-            loan.Repayer = await APIClient.Instance.GetUserAsync(TargetUser);
-            loan.RepayerId = loan.Repayer.Id;
-            await APIClient.Instance.PutLoanAsync(loan);
-        }
-        catch (Exception e)
-        {
-            _ = JSRuntime.InvokeVoidAsync("console.log", e.Message);
-        }
-        NavigationManager.NavigateTo("/");
+        loan.Repayer = await APIClient.Instance.GetUserAsync(TargetUser);
+        loan.RepayerId = loan.Repayer.Id;
+        await APIClient.Instance.PutLoanAsync(loan);
+        NavigationManager.NavigateTo("/return");
     }
 }

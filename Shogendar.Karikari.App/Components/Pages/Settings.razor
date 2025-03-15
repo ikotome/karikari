@@ -1,0 +1,52 @@
+@page "/settings"
+@using Shogendar.Karikari.Models
+
+<h1>秘密の設定ページ</h1>
+<hr />
+<h3>状態</h3>
+<h5>現在のユーザー: @LocalUser.Instance.User.Name</h5>
+<h5>接続先エンドポイント: @APIClient.Instance.EndPoint</h5>
+<hr />
+<h3>ユーザーの切り替え</h3>
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center"
+    Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="切り替え先" Component="DropDownBindValue" />
+    <RadzenDropDown Data=@userSuggestions Style="width: 100%; max-width: 400px;"
+        ValueChanged="@((string value) => { OnValueChanged(value); })" Name="DropDownBindValue" />
+</RadzenStack>
+<p>現在のユーザーとやりとりしたことがあるユーザーのみ切り替えることができます。</p>
+<hr />
+<h3>エンドポイントの変更</h3>
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">エンドポイント</RadzenText>
+    <RadzenTextBox @bind-Value="APIClient.Instance.EndPoint" Style="width: 100%" aria-label="Default TextBox" />
+</RadzenCard>
+
+<hr />
+<h3>Swagger UI</h3>
+<RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Click="@OnOpenSwagger" Text="Swagger UIを開く" />
+
+@code {
+
+    IEnumerable<string> userSuggestions;
+    async Task OnValueChanged(string value)
+    {
+        LocalUser.Instance.User = await APIClient.Instance.GetUserAsync(value);
+    }
+    async Task OnOpenSwagger()
+    {
+        Uri uri = new Uri($"{APIClient.Instance.EndPoint}/../swagger/index.html");
+        await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        IEnumerable<User> users = new List<User> { LocalUser.Instance.User };
+        var returns = await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, true);
+        var loans = await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, false);
+        if (returns is not null)
+            users = users.Union(returns);
+        if (loans is not null)
+            users = users.Union(loans);
+        userSuggestions = users.DistinctBy(u => u.Id).Select(u => u.Name);
+    }
+}

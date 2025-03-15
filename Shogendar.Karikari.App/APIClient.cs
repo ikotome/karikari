@@ -20,7 +20,12 @@ class APIClient(string baseUrl, string token, string secret)
     /// <summary>
     /// Karikari バックエンドのベースURL
     /// </summary>
-    private readonly string m_baseUrl = baseUrl;
+    private string m_baseUrl = baseUrl;
+    public string EndPoint
+    {
+        get => m_baseUrl;
+        set => m_baseUrl = value;
+    }
     /// <summary>
     /// 通信に使用するHttpClient
     /// </summary>
@@ -101,14 +106,16 @@ class APIClient(string baseUrl, string token, string secret)
     public async Task<Loan> PutLoanAsync(string title, string description, int payerId, int repayerId, decimal amount, DateTime paydate, DateTime repaydate, LoanType type, PaymentMethod method)
     {
         HttpResponseMessage response = await httpClient.PutAsync($"{m_baseUrl}/Loan?id=0&title={title}&description={description}&payerId={payerId}&repayerId={repayerId}&amount={amount}&paydate={paydate}&repaydate={repaydate}&type={(int)type}&method={(int)method}", null);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<Loan>(responseBody);
     }
     public async Task<Loan> GetLoanAsync(int id)
     {
         HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/Loan?id={id}");
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<Loan>(responseBody);
     }
@@ -116,28 +123,32 @@ class APIClient(string baseUrl, string token, string secret)
     public async Task<User> GetUserAsync(string name)
     {
         HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/User?name={name}");
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<User>(responseBody);
     }
     public async Task<User> GetUserAsync(int id)
     {
         HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/User?id={id}");
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<User>(responseBody);
     }
     public async Task<List<User>> GetUsersAsync(User user, bool isReturn)
     {
         HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/GetUsers?id={user.Id}&userType={isReturn}");
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<List<User>>(responseBody);
     }
     public async Task<List<Loan>> GetLoansAsync(User my, User other, bool isReturn)
     {
         HttpResponseMessage response = await httpClient.GetAsync($"{m_baseUrl}/GetLoans?myId={my.Id}&otherId={other.Id}&userType={isReturn}");
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
         string responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<List<Loan>>(responseBody);
     }

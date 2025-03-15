@@ -8,7 +8,7 @@
 <hr />
 
 <ItemContainer Item=@Loan>
-    <h1>@Loan.Title</h1>
+    <h1>@($"{GetName(Loan.Repayer)}が、{GetName(Loan.Payer)}に返すお金")</h1>
     <p>@Loan.Description</p>
     <p>日付: @Loan.PayDate.ToString("yyyy/MM/dd")</p>
     <p>返済期限: @Loan.RepayDate.ToString("yyyy/MM/dd")</p>
@@ -22,6 +22,14 @@
     protected override async Task OnInitializedAsync()
     {
         Loan = await APIClient.Instance.GetLoanAsync(LoanId);
+    }
+    string GetName(User user)
+    {
+        if (user.Id == LocalUser.Instance.User.Id)
+        {
+            return "あなた";
+        }
+        return user.Name;
     }
 
 }
