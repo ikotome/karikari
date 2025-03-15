@@ -21,7 +21,7 @@ namespace Shogendar.Karikari.Backend.Controllers
                         select User;
             if (!query.Any())
                 return NotFound();
-            return Ok(JsonSerializer.Serialize(query.ToList()));
+            return Ok(JsonSerializer.Serialize(query.FirstOrDefault()));
         }
 
         [HttpPut]

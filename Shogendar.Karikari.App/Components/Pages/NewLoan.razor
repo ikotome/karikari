@@ -1,9 +1,10 @@
 @page "/newloan"
 
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.Extensions.Logging
 @using Shogendar.Karikari.Models
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
-
 <h1>貸しを作る</h1>
 <hr />
 
@@ -100,9 +101,16 @@
     }
     async Task OnSubmit(Loan loan)
     {
-        loan.Repayer = await APIClient.Instance.GetUserAsync(TargetUser);
-        loan.RepayerId = loan.Repayer.Id;
-        await APIClient.Instance.PutLoanAsync(loan);
+        try
+        {
+            loan.Repayer = await APIClient.Instance.GetUserAsync(TargetUser);
+            loan.RepayerId = loan.Repayer.Id;
+            await APIClient.Instance.PutLoanAsync(loan);
+        }
+        catch (Exception e)
+        {
+            _ = JSRuntime.InvokeVoidAsync("console.log", e.Message);
+        }
         NavigationManager.NavigateTo("/");
     }
 }
