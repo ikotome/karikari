@@ -1,17 +1,108 @@
 @page "/newloan"
 
-<h1>貸し記録をつける</h1>
+@using System.ComponentModel.DataAnnotations
+@using Shogendar.Karikari.Models
+@inject NavigationManager NavigationManager
 
-<form>
-    
-    <RadzenText TextStyle="TextStyle.Subtitle" TagName="TagName.H3">タイトル</RadzenText>
-    <RadzenTextBox Style="width: 100%" aria-label="〜代" />
-    <RadzenText TextStyle="TextStyle.Subtitle" TagName="TagName.H3">説明</RadzenText>
-    <RadzenTextBox Style="width: 100%" aria-label="これを貸した理由..." />
-    <RadzenText TextStyle="TextStyle.Subtitle" TagName="TagName.H3">相手のユーザー名</RadzenText>
-    <RadzenTextBox Style="width: 100%" aria-label="これを貸す相手" />
-</form>
+<h1>貸しを作る</h1>
+<hr />
 
-@code {
-    double value = 0.0;
+<RadzenTemplateForm Data="@Loan" Submit="@((Loan args) => { OnSubmit(args); })">
+    <RadzenFieldset Text="貸し">
+        <RadzenStack Gap="1rem">
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenLabel Text="タイトル" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="10">
+                    <RadzenTextBox Style="width: 100%;" @bind-Value="Loan.Title" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenLabel Text="金額" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="10">
+                    <RadzenNumeric TValue="decimal" Format="c"
+                        Culture="@(new System.Globalization.CultureInfo("ja-JP"))" @bind-Value=Loan.Amount
+                        Style="width: 100%;" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenLabel Text="貸す相手" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="10">
+                    <RadzenDropDown @bind-Value=@TargetUser Data=@userSuggestions Style="width: 100%;"
+                        Name="DropDownEdit">
+                        <ValueTemplate Context="RadzenDropDown">
+                            <RadzenTextBox @bind-Value=@TargetUser Style="width:120%; height:120%; margin:-15px"
+                                aria-labelledby="DropDownEditLabel" />
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenLabel Text="貸す相手" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="10">
+                    <RadzenTextArea Placeholder="何で貸したか思い出せるように説明を入力..." Style="width: 100%"
+                        @bind-Value=@Loan.Description aria-label="TextArea with placeholder" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenLabel Text="返済期日" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="10">
+                    <RadzenDatePicker @bind-Value=@Loan.RepayDate Name="RadzenDatePickerBindValue" ShowCalendarWeek
+                        Style="width: 100%" DateFormat="yyyy/MM/dd" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenLabel Text="貸した日" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="10">
+                    <RadzenDatePicker @bind-Value=@Loan.PayDate Name="RadzenDatePickerBindValue" ShowCalendarWeek
+                        Style="width: 100%" DateFormat="yyyy/MM/dd" />
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
+    </RadzenFieldset>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem"
+        class="rz-mt-8 rz-mb-4">
+        <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="add" Text="作成" />
+        <RadzenButton ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Large" Icon="cancel"
+            Text="Cancel" />
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code
+{
+    Loan Loan { get; set; } = new Loan
+    {
+        Id = 0,
+        Amount = 0,
+        PayerId = LocalUser.Instance.User.Id,
+        RepayerId = 0,
+        Title = "",
+        Type = LoanType.Lent,
+        PayDate = DateTime.Today
+    };
+    string TargetUser { get; set; }
+    IEnumerable<string> userSuggestions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userSuggestions = (await APIClient.Instance.GetUsersAsync(LocalUser.Instance.User, true)).Select(u => u.Name);
+    }
+    async Task OnSubmit(Loan loan)
+    {
+        loan.Repayer = await APIClient.Instance.GetUserAsync(TargetUser);
+        loan.RepayerId = loan.Repayer.Id;
+        await APIClient.Instance.PutLoanAsync(loan);
+        NavigationManager.NavigateTo("/");
+    }
 }

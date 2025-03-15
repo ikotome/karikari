@@ -11,11 +11,13 @@ namespace Shogendar.Karikari.Backend.Controllers
     public class UserController : ControllerBase
     {
         [HttpGet]
-        public IActionResult ShowUser(int id)
+        public IActionResult ShowUser(int? id = null, string? name = null)
         {
+            if (id is null && name is null)
+                return BadRequest($"{nameof(id)}と{nameof(name)}のいずれかのパラメータを指定する必要があります。");
             Db db = new();
             var query = from User in db.Users
-                        where User.Id == id
+                        where id == null ? User.Name == name : User.Id == id
                         select User;
             if (!query.Any())
                 return NotFound();
